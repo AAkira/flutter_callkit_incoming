@@ -39,17 +39,14 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
     private let devicePushTokenVoIP = "DevicePushTokenVoIP"
 
     private func sendEvent(_ event: String, _ body: [String : Any?]?) {
-        let data = body ?? [:] as [String : Any?]
-        Cache.shared.updateLatestEvent(action: event, data: data)
-        streamHandlers.reap().forEach { handler in
-            handler?.send(event, body ?? [:])
-            if silenceEvents {
-                print(event, " silenced")
-                return
-            } else {
-                streamHandlers.reap().forEach { handler in
-                    handler?.send(event, body ?? [:])
-                }
+        let data = body ?? [:]
+        Cache.shared.updateLatestEvent(action: event, data: data as [String : Any?])
+        if silenceEvents {
+            print(event, " silenced")
+            return
+        } else {
+            streamHandlers.reap().forEach { handler in
+                handler?.send(event, data)
             }
         }
         
@@ -201,7 +198,7 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
             self.silenceEvents = silence
             result("OK")
             break;
-        case "requestNotificationPermission": 
+        case "requestNotificationPermission":
             result("OK")
             break
         case "hideCallkitIncoming":
