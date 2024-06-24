@@ -204,6 +204,8 @@ private fun Bundle.toData(): Map<String, Any> {
             CallkitConstants.EXTRA_CALLKIT_MISSED_CALL_NOTIFICATION_CHANNEL_NAME,
             ""
         ),
+        "isImportant" to getBoolean(CallkitConstants.EXTRA_CALLKIT_IS_IMPORTANT, false),
+        "isBot" to getBoolean(CallkitConstants.EXTRA_CALLKIT_IS_BOT, false),
     )
     val notification = mapOf(
         "id" to getInt(CallkitConstants.EXTRA_CALLKIT_MISSED_CALL_ID),
