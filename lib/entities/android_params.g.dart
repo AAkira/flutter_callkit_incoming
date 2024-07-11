@@ -29,6 +29,8 @@ AndroidParams _$AndroidParamsFromJson(Map json) => $checkedCreate(
               'missedCallNotificationChannelName', (v) => v as String?),
           isShowFullLockedScreen:
               $checkedConvert('isShowFullLockedScreen', (v) => v as bool?),
+          isImportant: $checkedConvert('isImportant', (v) => v as bool?),
+          isBot: $checkedConvert('isBot', (v) => v as bool?),
         );
         return val;
       },
@@ -50,4 +52,6 @@ Map<String, dynamic> _$AndroidParamsToJson(AndroidParams instance) =>
       'missedCallNotificationChannelName':
           instance.missedCallNotificationChannelName,
       'isShowFullLockedScreen': instance.isShowFullLockedScreen,
+      'isImportant': instance.isImportant,
+      'isBot': instance.isBot,
     };
