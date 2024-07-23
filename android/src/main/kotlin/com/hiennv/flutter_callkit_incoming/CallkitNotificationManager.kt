@@ -186,11 +186,7 @@ class CallkitNotificationManager(private val context: Context) {
                     .into(targetLoadAvatarDefault)
             }
             val caller = data.getString(CallkitConstants.EXTRA_CALLKIT_NAME_CALLER, "")
-            val notificationManager: NotificationManager =
-                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            val canUseFullScreenIntent =
-                Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE || notificationManager.canUseFullScreenIntent()
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && canUseFullScreenIntent) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 val person = Person.Builder()
                     .setName(caller)
                     .setImportant(
