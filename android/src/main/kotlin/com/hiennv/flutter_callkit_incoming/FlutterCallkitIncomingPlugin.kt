@@ -290,8 +290,20 @@ class FlutterCallkitIncomingPlugin : FlutterPlugin, MethodCallHandler, ActivityA
                         Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE || notificationManager.canUseFullScreenIntent()
                     result.success(canUseFullScreen)
                 }
+
                 "openFullScreenIntentSettings" -> {
-                    context?.startActivity(Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT))
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                        return
+                    }
+                    val packageName = call.arguments as? String ?: ""
+                    context?.startActivity(
+                        Intent(
+                            Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT,
+                        ).also {
+                            it.putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+                            it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+                    )
                 }
                 // EDIT - clear the incoming notification/ring (after accept/decline/timeout)
                 "hideCallkitIncoming" -> {
