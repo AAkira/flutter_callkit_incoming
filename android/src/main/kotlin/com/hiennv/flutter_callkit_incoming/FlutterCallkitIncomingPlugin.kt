@@ -2,11 +2,15 @@ package com.hiennv.flutter_callkit_incoming
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.NotificationManager
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.util.Log
 import androidx.annotation.NonNull
 import com.hiennv.flutter_callkit_incoming.Utils.Companion.reapCollection
@@ -279,6 +283,40 @@ class FlutterCallkitIncomingPlugin : FlutterPlugin, MethodCallHandler, ActivityA
                         }
                     }
                     callkitNotificationManager?.requestNotificationPermission(activity, map)
+                }
+
+                "canUseFullScreenIntent" -> {
+                    val ctx = context ?: return
+                    val notificationManager: NotificationManager =
+                        ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+                    val canUseFullScreenIntent =
+                        Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE || notificationManager.canUseFullScreenIntent()
+                    result.success(canUseFullScreenIntent)
+                }
+
+                "openFullScreenIntentSettings" -> {
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                        return
+                    }
+                    val ctx = context ?: return
+                    try {
+                        ctx.startActivity(
+                            Intent(
+                                Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT,
+                                Uri.parse("package:${ctx.packageName}"),
+                            )
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
+                        )
+                    } catch (e: ActivityNotFoundException) {
+                        ctx.startActivity(
+                            Intent(
+                                Settings.ACTION_APP_NOTIFICATION_SETTINGS,
+                                Uri.parse("package:${ctx.packageName}"),
+                            )
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
+                        )
+                    }
                 }
                 // EDIT - clear the incoming notification/ring (after accept/decline/timeout)
                 "hideCallkitIncoming" -> {
