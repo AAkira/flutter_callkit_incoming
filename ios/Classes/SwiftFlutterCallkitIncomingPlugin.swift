@@ -201,7 +201,7 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         case "requestNotificationPermission":
             result("OK")
             break
-        case "canUseFullScreen":
+        case "canUseFullScreenIntent":
             result(true)
             break
         case "openFullScreenIntentSettings":

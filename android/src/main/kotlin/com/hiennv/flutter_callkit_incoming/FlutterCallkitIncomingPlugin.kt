@@ -285,13 +285,13 @@ class FlutterCallkitIncomingPlugin : FlutterPlugin, MethodCallHandler, ActivityA
                     callkitNotificationManager?.requestNotificationPermission(activity, map)
                 }
 
-                "canUseFullScreen" -> {
+                "canUseFullScreenIntent" -> {
                     val notificationManager: NotificationManager =
                         context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-                    val canUseFullScreen =
+                    val canUseFullScreenIntent =
                         Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE || notificationManager.canUseFullScreenIntent()
-                    result.success(canUseFullScreen)
+                    result.success(canUseFullScreenIntent)
                 }
 
                 "openFullScreenIntentSettings" -> {

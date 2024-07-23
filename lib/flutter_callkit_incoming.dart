@@ -151,8 +151,8 @@ class FlutterCallkitIncoming {
 
   /// Check permission show full screen notification for Android(14)
   /// Only Android: return canUseFullScreenIntent
-  static Future<bool> canUseFullScreen() async {
-    return (await _channel.invokeMethod("canUseFullScreen")) as bool? ??
+  static Future<bool> canUseFullScreenIntent() async {
+    return (await _channel.invokeMethod("canUseFullScreenIntent")) as bool? ??
         true;
   }
 
