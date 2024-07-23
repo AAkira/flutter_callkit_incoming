@@ -304,14 +304,16 @@ class FlutterCallkitIncomingPlugin : FlutterPlugin, MethodCallHandler, ActivityA
                             Intent(
                                 Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT,
                                 Uri.parse("package:$packageName"),
-                            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
+                            )
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
                         )
                     } catch (e: ActivityNotFoundException) {
                         context?.startActivity(
                             Intent(
                                 Settings.ACTION_APP_NOTIFICATION_SETTINGS,
                                 Uri.parse("package:$packageName"),
-                            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
+                            )
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
                         )
                     }
                 }
