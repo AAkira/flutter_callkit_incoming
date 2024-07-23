@@ -309,7 +309,7 @@ class FlutterCallkitIncomingPlugin : FlutterPlugin, MethodCallHandler, ActivityA
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
                         )
                     } catch (e: ActivityNotFoundException) {
-                        context?.startActivity(
+                        ctx.startActivity(
                             Intent(
                                 Settings.ACTION_APP_NOTIFICATION_SETTINGS,
                                 Uri.parse("package:${ctx.packageName}"),
