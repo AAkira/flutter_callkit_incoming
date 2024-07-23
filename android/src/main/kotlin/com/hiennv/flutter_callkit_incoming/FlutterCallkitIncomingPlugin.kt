@@ -286,8 +286,9 @@ class FlutterCallkitIncomingPlugin : FlutterPlugin, MethodCallHandler, ActivityA
                 }
 
                 "canUseFullScreenIntent" -> {
+                    val ctx = context ?: return
                     val notificationManager: NotificationManager =
-                        context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                        ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
                     val canUseFullScreenIntent =
                         Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE || notificationManager.canUseFullScreenIntent()
@@ -298,12 +299,12 @@ class FlutterCallkitIncomingPlugin : FlutterPlugin, MethodCallHandler, ActivityA
                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                         return
                     }
-                    val packageName = call.arguments as? String ?: ""
+                    val ctx = context ?: return
                     try {
-                        context?.startActivity(
+                        ctx.startActivity(
                             Intent(
                                 Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT,
-                                Uri.parse("package:$packageName"),
+                                Uri.parse("package:${ctx.packageName}"),
                             )
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
                         )
@@ -311,7 +312,7 @@ class FlutterCallkitIncomingPlugin : FlutterPlugin, MethodCallHandler, ActivityA
                         context?.startActivity(
                             Intent(
                                 Settings.ACTION_APP_NOTIFICATION_SETTINGS,
-                                Uri.parse("package:$packageName"),
+                                Uri.parse("package:${ctx.packageName}"),
                             )
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
                         )

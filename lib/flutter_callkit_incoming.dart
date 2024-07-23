@@ -158,8 +158,8 @@ class FlutterCallkitIncoming {
 
   /// Open the full screen intent settings page for Android(14)
   /// Only Android: open the full screen intent settings page
-  static Future openFullScreenIntentSettings(String packageName) async {
-    return await _channel.invokeMethod("openFullScreenIntentSettings", packageName);
+  static Future openFullScreenIntentSettings() async {
+    return await _channel.invokeMethod("openFullScreenIntentSettings");
   }
 
   /// Get latest action
