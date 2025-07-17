@@ -15,9 +15,9 @@ IOSParams _$IOSParamsFromJson(Map json) => $checkedCreate(
           handleType: $checkedConvert('handleType', (v) => v as String?),
           supportsVideo: $checkedConvert('supportsVideo', (v) => v as bool?),
           maximumCallGroups:
-              $checkedConvert('maximumCallGroups', (v) => v as int?),
-          maximumCallsPerCallGroup:
-              $checkedConvert('maximumCallsPerCallGroup', (v) => v as int?),
+              $checkedConvert('maximumCallGroups', (v) => (v as num?)?.toInt()),
+          maximumCallsPerCallGroup: $checkedConvert(
+              'maximumCallsPerCallGroup', (v) => (v as num?)?.toInt()),
           audioSessionMode:
               $checkedConvert('audioSessionMode', (v) => v as String?),
           audioSessionActive:

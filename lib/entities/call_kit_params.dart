@@ -21,6 +21,7 @@ class CallKitParams {
     this.textAccept,
     this.textDecline,
     this.missedCallNotification,
+    this.callingNotification,
     this.extra,
     this.headers,
     this.android,
@@ -38,6 +39,7 @@ class CallKitParams {
   final String? textAccept;
   final String? textDecline;
   final NotificationParams? missedCallNotification;
+  final NotificationParams? callingNotification;
   final Map<String, dynamic>? extra;
   final Map<String, dynamic>? headers;
   final AndroidParams? android;
@@ -51,19 +53,20 @@ class CallKitParams {
   @override
   String toString() =>
       'CallKitParams(' +
-          'id: $id, ' +
-          'nameCaller: $nameCaller, ' +
-          'appName: $appName, ' +
-          'avatar: $avatar, ' +
-          'handle: $handle, ' +
-          'type: $type, ' +
-          'duration: $duration, ' +
-          'textAccept: $textAccept, ' +
-          'textDecline: $textDecline, ' +
-          'notificationParams: $missedCallNotification, ' +
-          'extra: $extra, ' +
-          'headers: $headers, ' +
-          'androidParams: $android, ' +
-          'iOSParams: $ios' +
-          ')';
+      'id: $id, ' +
+      'nameCaller: $nameCaller, ' +
+      'appName: $appName, ' +
+      'avatar: $avatar, ' +
+      'handle: $handle, ' +
+      'type: $type, ' +
+      'duration: $duration, ' +
+      'textAccept: $textAccept, ' +
+      'textDecline: $textDecline, ' +
+      'missedCallNotification: $missedCallNotification, ' +
+      'callingNotification: $callingNotification, ' +
+      'extra: $extra, ' +
+      'headers: $headers, ' +
+      'androidParams: $android, ' +
+      'iOSParams: $ios' +
+      ')';
 }
