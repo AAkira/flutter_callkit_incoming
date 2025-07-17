@@ -114,7 +114,6 @@ class HomePageState extends State<HomePage> {
 
   Future<CallKitParams?> initCurrentCall() async {
     await requestNotificationPermission();
-
     //check current call from pushkit if possible
     final calls = await FlutterCallkitIncoming.instance.activeCalls();
     if (calls != null && calls.isNotEmpty) {
@@ -137,7 +136,7 @@ class HomePageState extends State<HomePage> {
         appName: 'Callkit',
         avatar: 'https://i.pravatar.cc/100',
         handle: '0123456789',
-        type: 0,
+        type: 1,
         duration: 30000,
         textAccept: 'Accept',
         textDecline: 'Decline',
@@ -147,11 +146,19 @@ class HomePageState extends State<HomePage> {
           subtitle: 'Missed call',
           callbackText: 'Call back',
         ),
+        callingNotification: const NotificationParams(
+          showNotification: true,
+          isShowCallback: true,
+          subtitle: 'Calling...',
+          callbackText: 'Hang Up',
+        ),
         extra: <String, dynamic>{'userId': '1a2b3c4d'},
         headers: <String, dynamic>{'apiKey': 'Abc@123!', 'platform': 'flutter'},
         android: const AndroidParams(
           isCustomNotification: true,
-          isShowLogo: false,
+          isShowLogo: true,
+          isShowCallID: true,
+          logoUrl: 'assets/test.png',
           ringtonePath: 'system_ringtone_default',
           backgroundColor: '#0955fa',
           backgroundUrl: 'assets/test.png',
@@ -191,13 +198,22 @@ class HomePageState extends State<HomePage> {
   Future<void> startOutGoingCall() async {
     _currentUuid = _uuid.v4();
     final params = CallKitParams(
-      id: _currentUuid,
-      nameCaller: 'Hien Nguyen',
-      handle: '0123456789',
-      type: 1,
-      extra: <String, dynamic>{'userId': '1a2b3c4d'},
-      ios: const IOSParams(handleType: 'number'),
-    );
+        id: _currentUuid,
+        nameCaller: 'Hien Nguyen',
+        handle: '0123456789',
+        type: 1,
+        extra: <String, dynamic>{'userId': '1a2b3c4d'},
+        ios: const IOSParams(handleType: 'number'),
+        callingNotification: const NotificationParams(
+          showNotification: true,
+          isShowCallback: true,
+          subtitle: 'Calling...',
+          callbackText: 'Hang Up',
+        ),
+        android: const AndroidParams(
+          isCustomNotification: true,
+          isShowCallID: true,
+        ));
     await FlutterCallkitIncoming.instance.startCall(params);
   }
 
@@ -248,7 +264,9 @@ class HomePageState extends State<HomePage> {
           callback(event);
         }
       });
-    } on Exception {}
+    } on Exception catch (e) {
+      print(e);
+    }
   }
 
   //check with https://webhook.site/#!/2748bc41-8599-4093-b8ad-93fd328f1cd2
@@ -260,7 +278,7 @@ class HomePageState extends State<HomePage> {
   void onEvent(CallEvent event) {
     if (!mounted) return;
     setState(() {
-      textEvents += '---\n${event.toString()}\n';
+      textEvents += '-----------------------\n${event.toString()}\n';
     });
   }
 }

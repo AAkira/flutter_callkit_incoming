@@ -1,3 +1,26 @@
+## 2.5.3-alpha
+* Update Android 14+ compatibility(force CallStyle/`FOREGROUND_SERVICE_PHONE_CALL` for https://developer.android.com/about/versions/14/behavior-changes-all#non-dismissable-notifications)
+* Fixed some bugs.
+
+## 2.5.2
+* Add notification calling for Android `callingNotification`, thank @ebsangam https://github.com/hiennguyen92/flutter_callkit_incoming/pull/662
+* Add `logoUrl` properties (inside android prop) 
+* Fixed issue DMTF IOS, thank @minn-ee https://github.com/hiennguyen92/flutter_callkit_incoming/issues/577
+* Fixed issue duplicate missing notification Android
+* Fixed some bugs.
+
+## 2.5.1
+* Fix issue security Android, thanks @datpt11 https://github.com/hiennguyen92/flutter_callkit_incoming/issues/651
+
+## 2.5.0
+* update jvmToolchain(17) for Android
+
+## 2.0.4+2
+* add func `requestFullIntentPermission` (Android 14+) thank @Spyspyspy https://github.com/hiennguyen92/flutter_callkit_incoming/pull/584
+* set Notification call style (Android) thank @AAkira https://github.com/hiennguyen92/flutter_callkit_incoming/pull/553
+* Many other issues
+    1. add prop `accepted` in activeCalls (iOS) thank @vasilich6107
+
 ## 2.0.4+1
 * Removed `Telecom Framework` (Android)
 

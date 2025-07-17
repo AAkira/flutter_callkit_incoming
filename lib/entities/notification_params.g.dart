@@ -11,13 +11,13 @@ NotificationParams _$NotificationParamsFromJson(Map json) => $checkedCreate(
       json,
       ($checkedConvert) {
         final val = NotificationParams(
-          id: $checkedConvert('id', (v) => v as int?),
+          id: $checkedConvert('id', (v) => (v as num?)?.toInt()),
           showNotification:
               $checkedConvert('showNotification', (v) => v as bool?),
           subtitle: $checkedConvert('subtitle', (v) => v as String?),
           callbackText: $checkedConvert('callbackText', (v) => v as String?),
           isShowCallback: $checkedConvert('isShowCallback', (v) => v as bool?),
-          count: $checkedConvert('count', (v) => v as int?),
+          count: $checkedConvert('count', (v) => (v as num?)?.toInt()),
         );
         return val;
       },

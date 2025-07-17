@@ -16,13 +16,20 @@ CallKitParams _$CallKitParamsFromJson(Map json) => $checkedCreate(
           appName: $checkedConvert('appName', (v) => v as String?),
           avatar: $checkedConvert('avatar', (v) => v as String?),
           handle: $checkedConvert('handle', (v) => v as String?),
-          type: $checkedConvert('type', (v) => v as int?),
-          normalHandle: $checkedConvert('normalHandle', (v) => v as int?),
-          duration: $checkedConvert('duration', (v) => v as int?),
+          type: $checkedConvert('type', (v) => (v as num?)?.toInt()),
+          normalHandle:
+              $checkedConvert('normalHandle', (v) => (v as num?)?.toInt()),
+          duration: $checkedConvert('duration', (v) => (v as num?)?.toInt()),
           textAccept: $checkedConvert('textAccept', (v) => v as String?),
           textDecline: $checkedConvert('textDecline', (v) => v as String?),
           missedCallNotification: $checkedConvert(
               'missedCallNotification',
+              (v) => v == null
+                  ? null
+                  : NotificationParams.fromJson(
+                      Map<String, dynamic>.from(v as Map))),
+          callingNotification: $checkedConvert(
+              'callingNotification',
               (v) => v == null
                   ? null
                   : NotificationParams.fromJson(
@@ -66,6 +73,7 @@ Map<String, dynamic> _$CallKitParamsToJson(CallKitParams instance) =>
       'textAccept': instance.textAccept,
       'textDecline': instance.textDecline,
       'missedCallNotification': instance.missedCallNotification?.toJson(),
+      'callingNotification': instance.callingNotification?.toJson(),
       'extra': instance.extra,
       'headers': instance.headers,
       'android': instance.android?.toJson(),

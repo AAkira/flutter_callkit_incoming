@@ -2,16 +2,10 @@ package com.hiennv.flutter_callkit_incoming
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.NotificationManager
-import android.content.ActivityNotFoundException
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.provider.Settings
-import android.util.Log
 import androidx.annotation.NonNull
 import com.hiennv.flutter_callkit_incoming.Utils.Companion.reapCollection
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -33,11 +27,14 @@ class FlutterCallkitIncomingPlugin : FlutterPlugin, MethodCallHandler, ActivityA
         @SuppressLint("StaticFieldLeak")
         private lateinit var instance: FlutterCallkitIncomingPlugin
 
-        public fun getInstance(): FlutterCallkitIncomingPlugin {
-            return instance
+        fun getInstance(): FlutterCallkitIncomingPlugin? {
+            if (hasInstance()) {
+                return instance
+            }
+            return null
         }
 
-        public fun hasInstance(): Boolean {
+        fun hasInstance(): Boolean {
             return ::instance.isInitialized
         }
 
@@ -45,7 +42,7 @@ class FlutterCallkitIncomingPlugin : FlutterPlugin, MethodCallHandler, ActivityA
         private val eventChannels = mutableMapOf<BinaryMessenger, EventChannel>()
         private val eventHandlers = mutableListOf<WeakReference<EventCallbackHandler>>()
 
-        fun sendEvent(event: String, body: Map<String, Any>) {
+        fun sendEvent(event: String, body: Map<String, Any?>) {
             eventHandlers.reapCollection().forEach {
                 it.get()?.send(event, body)
             }
@@ -68,7 +65,8 @@ class FlutterCallkitIncomingPlugin : FlutterPlugin, MethodCallHandler, ActivityA
         fun initSharedInstance(context: Context, binaryMessenger: BinaryMessenger) {
             if (!::instance.isInitialized) {
                 instance = FlutterCallkitIncomingPlugin()
-                instance.callkitNotificationManager = CallkitNotificationManager(context)
+                instance.callkitSoundPlayerManager = CallkitSoundPlayerManager(context)
+                instance.callkitNotificationManager = CallkitNotificationManager(context, instance.callkitSoundPlayerManager)
                 instance.context = context
             }
 
@@ -93,14 +91,25 @@ class FlutterCallkitIncomingPlugin : FlutterPlugin, MethodCallHandler, ActivityA
     private var activity: Activity? = null
     private var context: Context? = null
     private var callkitNotificationManager: CallkitNotificationManager? = null
+    private var callkitSoundPlayerManager: CallkitSoundPlayerManager? = null
+
+    fun getCallkitNotificationManager(): CallkitNotificationManager? {
+        return callkitNotificationManager
+    }
+
+    fun getCallkitSoundPlayerManager(): CallkitSoundPlayerManager? {
+        return callkitSoundPlayerManager
+    }
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         sharePluginWithRegister(flutterPluginBinding)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            InAppCallManager(flutterPluginBinding.applicationContext).registerPhoneAccount()
+        }
     }
 
     public fun showIncomingNotification(data: Data) {
         data.from = "notification"
-        callkitNotificationManager?.showIncomingNotification(data.toBundle())
         //send BroadcastReceiver
         context?.sendBroadcast(
             CallkitIncomingBroadcastReceiver.getIntentIncoming(
@@ -111,7 +120,7 @@ class FlutterCallkitIncomingPlugin : FlutterPlugin, MethodCallHandler, ActivityA
     }
 
     public fun showMissCallNotification(data: Data) {
-        callkitNotificationManager?.showIncomingNotification(data.toBundle())
+        callkitNotificationManager?.showMissCallNotification(data.toBundle())
     }
 
     public fun startCall(data: Data) {
@@ -219,22 +228,45 @@ class FlutterCallkitIncomingPlugin : FlutterPlugin, MethodCallHandler, ActivityA
                 }
 
                 "isMuted" -> {
-                    result.success(false)
+                    result.success(true)
                 }
 
                 "endCall" -> {
+                    val calls = getDataActiveCalls(context)
                     val data = Data(call.arguments() ?: HashMap())
-                    context?.sendBroadcast(
-                        CallkitIncomingBroadcastReceiver.getIntentEnded(
-                            requireNotNull(context),
-                            data.toBundle()
-                        )
-                    )
-
+                    val currentCall = calls.firstOrNull { it.id == data.id }
+                    if (currentCall != null && context != null) {
+                        if(currentCall.isAccepted) {
+                            context?.sendBroadcast(
+                                CallkitIncomingBroadcastReceiver.getIntentEnded(
+                                    requireNotNull(context),
+                                    currentCall.toBundle()
+                                )
+                            )
+                        }else {
+                            context?.sendBroadcast(
+                                CallkitIncomingBroadcastReceiver.getIntentDecline(
+                                    requireNotNull(context),
+                                    currentCall.toBundle()
+                                )
+                            )
+                        }
+                    }
                     result.success("OK")
                 }
 
                 "callConnected" -> {
+                    val calls = getDataActiveCalls(context)
+                    val data = Data(call.arguments() ?: HashMap())
+                    val currentCall = calls.firstOrNull { it.id == data.id }
+                    if (currentCall != null && context != null) {
+                        context?.sendBroadcast(
+                            CallkitIncomingBroadcastReceiver.getIntentConnected(
+                                requireNotNull(context),
+                                currentCall.toBundle()
+                            )
+                        )
+                    }
                     result.success("OK")
                 }
 
@@ -266,13 +298,13 @@ class FlutterCallkitIncomingPlugin : FlutterPlugin, MethodCallHandler, ActivityA
                 }
 
                 "getDevicePushTokenVoIP" -> {
-                    result.success(null)
+                    result.success("")
                 }
 
                 "silenceEvents" -> {
                     val silence = call.arguments as? Boolean ?: false
                     CallkitIncomingBroadcastReceiver.silenceEvents = silence
-                    result.success("")
+                    result.success(true)
                 }
 
                 "requestNotificationPermission" -> {
@@ -283,54 +315,35 @@ class FlutterCallkitIncomingPlugin : FlutterPlugin, MethodCallHandler, ActivityA
                         }
                     }
                     callkitNotificationManager?.requestNotificationPermission(activity, map)
+                    result.success(true)
+                }
+
+                "requestFullIntentPermission" -> {
+                    callkitNotificationManager?.requestFullIntentPermission(activity)
+                    result.success(true)
                 }
 
                 "canUseFullScreenIntent" -> {
-                    val ctx = context ?: return
-                    val notificationManager: NotificationManager =
-                        ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-                    val canUseFullScreenIntent =
-                        Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE || notificationManager.canUseFullScreenIntent()
-                    result.success(canUseFullScreenIntent)
+                    result.success(callkitNotificationManager?.canUseFullScreenIntent() ?: true)
                 }
 
                 "openFullScreenIntentSettings" -> {
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                        return
-                    }
-                    val ctx = context ?: return
-                    try {
-                        ctx.startActivity(
-                            Intent(
-                                Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT,
-                                Uri.parse("package:${ctx.packageName}"),
-                            )
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
-                        )
-                    } catch (e: ActivityNotFoundException) {
-                        ctx.startActivity(
-                            Intent(
-                                Settings.ACTION_APP_NOTIFICATION_SETTINGS,
-                                Uri.parse("package:${ctx.packageName}"),
-                            )
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
-                        )
-                    }
+                    callkitNotificationManager?.openFullScreenIntentSettings(activity)
                 }
+
                 // EDIT - clear the incoming notification/ring (after accept/decline/timeout)
                 "hideCallkitIncoming" -> {
                     val data = Data(call.arguments() ?: HashMap())
-                    context?.stopService(Intent(context, CallkitSoundPlayerService::class.java))
+                    callkitSoundPlayerManager?.stop()
                     callkitNotificationManager?.clearIncomingNotification(data.toBundle(), false)
+                    result.success(true)
                 }
 
                 "endNativeSubsystemOnly" -> {
-
+                    result.success(true)
                 }
 
                 "setAudioRoute" -> {
-
                 }
 
                 "getLatestEvent" -> {
@@ -376,7 +389,7 @@ class FlutterCallkitIncomingPlugin : FlutterPlugin, MethodCallHandler, ActivityA
             eventSink = sink
         }
 
-        fun send(event: String, body: Map<String, Any>) {
+        fun send(event: String, body: Map<String, Any?>) {
             val data = mapOf(
                 "event" to event,
                 "body" to body

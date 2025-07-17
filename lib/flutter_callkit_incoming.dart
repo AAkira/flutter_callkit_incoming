@@ -134,26 +134,31 @@ class FlutterCallkitIncoming {
   }
 
   /// Silence CallKit events
-  static Future silenceEvents() async {
+  static Future<bool> silenceEvents() async {
     return await _channel.invokeMethod("silenceEvents", true);
   }
 
   /// Unsilence CallKit events
-  static Future unsilenceEvents() async {
+  static Future<bool> unsilenceEvents() async {
     return await _channel.invokeMethod("silenceEvents", false);
   }
 
   /// Request permission show notification for Android(13)
   /// Only Android: show request permission post notification for Android 13+
-  static Future requestNotificationPermission(dynamic data) async {
+  static Future<bool> requestNotificationPermission(dynamic data) async {
     return await _channel.invokeMethod("requestNotificationPermission", data);
   }
 
-  /// Check permission show full screen notification for Android(14)
-  /// Only Android: return canUseFullScreenIntent
+  /// Request permission show notification for Android(14)+
+  /// Only Android: show request permission for ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT
+  static Future<void> requestFullIntentPermission() async {
+    return await _channel.invokeMethod("requestFullIntentPermission");
+  }
+
+  /// Check can use full screen intent for Android(14)+
+  /// Only Android: canUseFullScreenIntent permission for ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT
   static Future<bool> canUseFullScreenIntent() async {
-    return (await _channel.invokeMethod("canUseFullScreenIntent")) as bool? ??
-        true;
+    return await _channel.invokeMethod("canUseFullScreenIntent");
   }
 
   /// Open the full screen intent settings page for Android(14)
