@@ -50,4 +50,26 @@ class IOSParams {
       _$IOSParamsFromJson(json);
 
   Map<String, dynamic> toJson() => _$IOSParamsToJson(this);
+
+  @override
+  String toString() {
+    return 'IOSParams{'
+        'iconName: $iconName, '
+        'handleType: $handleType, '
+        'supportsVideo: $supportsVideo, '
+        'maximumCallGroups: $maximumCallGroups, '
+        'maximumCallsPerCallGroup: $maximumCallsPerCallGroup, '
+        'supportsDTMF: $supportsDTMF, '
+        'supportsHolding: $supportsHolding, '
+        'supportsGrouping: $supportsGrouping, '
+        'supportsUngrouping: $supportsUngrouping, '
+        'includesCallsInRecents: $includesCallsInRecents, '
+        'ringtonePath: $ringtonePath, '
+        'configureAudioSession: $configureAudioSession, '
+        'audioSessionMode: $audioSessionMode, '
+        'audioSessionActive: $audioSessionActive, '
+        'audioSessionPreferredSampleRate: $audioSessionPreferredSampleRate, '
+        'audioSessionPreferredIOBufferDuration: $audioSessionPreferredIOBufferDuration'
+        '}';
+  }
 }

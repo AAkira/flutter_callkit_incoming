@@ -74,4 +74,25 @@ class AndroidParams {
       _$AndroidParamsFromJson(json);
 
   Map<String, dynamic> toJson() => _$AndroidParamsToJson(this);
+
+  @override
+  String toString() {
+    return 'AndroidParams{'
+        'isCustomNotification: $isCustomNotification, '
+        'isCustomSmallExNotification: $isCustomSmallExNotification, '
+        'isShowLogo: $isShowLogo, '
+        'logoUrl: $logoUrl, '
+        'isShowCallID: $isShowCallID, '
+        'ringtonePath: $ringtonePath, '
+        'backgroundColor: $backgroundColor, '
+        'backgroundUrl: $backgroundUrl, '
+        'actionColor: $actionColor, '
+        'textColor: $textColor, '
+        'incomingCallNotificationChannelName: $incomingCallNotificationChannelName, '
+        'missedCallNotificationChannelName: $missedCallNotificationChannelName, '
+        'isShowFullLockedScreen: $isShowFullLockedScreen, '
+        'isImportant: $isImportant, '
+        'isBot: $isBot'
+        '}';
+  }
 }

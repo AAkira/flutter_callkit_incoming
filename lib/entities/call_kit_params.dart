@@ -55,4 +55,27 @@ class CallKitParams {
       _$CallKitParamsFromJson(json);
 
   Map<String, dynamic> toJson() => _$CallKitParamsToJson(this);
+
+  @override
+  String toString() {
+    return 'CallKitParams{'
+        'id: $id, '
+        'nameCaller: $nameCaller, '
+        'appName: $appName, '
+        'avatar: $avatar, '
+        'handle: $handle, '
+        'type: $type, '
+        'normalHandle: $normalHandle, '
+        'duration: $duration, '
+        'isAccepted: $isAccepted, '
+        'textAccept: $textAccept, '
+        'textDecline: $textDecline, '
+        'missedCallNotification: $missedCallNotification, '
+        'callingNotification: $callingNotification, '
+        'extra: $extra, '
+        'headers: $headers, '
+        'android: $android, '
+        'ios: $ios'
+        '}';
+  }
 }
