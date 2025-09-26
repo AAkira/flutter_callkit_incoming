@@ -25,6 +25,7 @@ Future<void> showCallkitIncoming(String uuid) async {
     handle: '0123456789',
     type: 0,
     duration: 30000,
+    isAccepted: false,
     textAccept: 'Accept',
     textDecline: 'Decline',
     missedCallNotification: const NotificationParams(
@@ -98,20 +99,19 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Future<dynamic> getCurrentCall() async {
     //check current call from pushkit if possible
     var calls = await FlutterCallkitIncoming.activeCalls();
-    if (calls is List) {
-      if (calls.isNotEmpty) {
-        print('DATA: $calls');
-        if (calls[0]['id'] != null && calls[0]['isAccepted'] == true) {
-          _currentUuid = calls[0]['id'];
-          return calls[0];
-        } else {
-          _currentUuid = "";
-          return null;
-        }
+
+    if (calls.isNotEmpty) {
+      print('DATA: $calls');
+      if (calls[0].id != null && calls[0].isAccepted == true) {
+        _currentUuid = calls[0].id;
+        return calls[0];
       } else {
         _currentUuid = "";
         return null;
       }
+    } else {
+      _currentUuid = "";
+      return null;
     }
   }
 

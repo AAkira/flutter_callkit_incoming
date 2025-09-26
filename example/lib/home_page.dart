@@ -117,15 +117,13 @@ class HomePageState extends State<HomePage> {
     await requestNotificationPermission();
     //check current call from pushkit if possible
     var calls = await FlutterCallkitIncoming.activeCalls();
-    if (calls is List) {
-      if (calls.isNotEmpty) {
-        print('DATA: $calls');
-        _currentUuid = calls[0]['id'];
-        return calls[0];
-      } else {
-        _currentUuid = "";
-        return null;
-      }
+    if (calls.isNotEmpty) {
+      print('DATA: $calls');
+      _currentUuid = calls[0].id;
+      return calls[0];
+    } else {
+      _currentUuid = "";
+      return null;
     }
   }
 
@@ -142,6 +140,7 @@ class HomePageState extends State<HomePage> {
         handle: '0123456789',
         type: 0,
         duration: 30000,
+        isAccepted: false,
         textAccept: 'Accept',
         textDecline: 'Decline',
         missedCallNotification: const NotificationParams(
@@ -207,6 +206,7 @@ class HomePageState extends State<HomePage> {
         nameCaller: 'Hien Nguyen',
         handle: '0123456789',
         type: 1,
+        isAccepted: false,
         extra: <String, dynamic>{'userId': '1a2b3c4d'},
         ios: const IOSParams(handleType: 'generic'),
         callingNotification: const NotificationParams(

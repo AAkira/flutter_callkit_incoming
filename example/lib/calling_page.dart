@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_callkit_incoming/entities/entities.dart';
@@ -48,10 +47,7 @@ class CallingPageState extends State<CallingPage> {
 
   @override
   Widget build(BuildContext context) {
-    final params = jsonDecode(jsonEncode(
-        ModalRoute.of(context)!.settings.arguments as Map<dynamic, dynamic>));
-    print(ModalRoute.of(context)!.settings.arguments);
-    calling = CallKitParams.fromJson(params);
+    calling = ModalRoute.of(context)!.settings.arguments as CallKitParams;
 
     var timeDisplay = intToTimeLeft(_start);
 
