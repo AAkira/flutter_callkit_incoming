@@ -18,6 +18,7 @@ class CallKitParams {
     this.type,
     this.normalHandle,
     this.duration,
+    this.isAccepted = false,
     this.textAccept,
     this.textDecline,
     this.missedCallNotification,
@@ -34,14 +35,19 @@ class CallKitParams {
   final String? avatar;
   final String? handle;
   final int? type;
-  final int? normalHandle;
+  final int? normalHandle; // androidにない iosのみ
   final int? duration;
-  final String? textAccept;
+  final bool? isAccepted;
+
+  final String? textAccept; // Androidのみ
   final String? textDecline;
+
   final NotificationParams? missedCallNotification;
   final NotificationParams? callingNotification;
+
   final Map<String, dynamic>? extra;
   final Map<String, dynamic>? headers;
+
   final AndroidParams? android;
   final IOSParams? ios;
 

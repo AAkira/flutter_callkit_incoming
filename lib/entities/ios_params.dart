@@ -13,18 +13,19 @@ class IOSParams {
   final bool? supportsVideo;
   final int? maximumCallGroups;
   final int? maximumCallsPerCallGroup;
-  final String? audioSessionMode;
-  final bool? audioSessionActive;
-  final double? audioSessionPreferredSampleRate;
-  final double? audioSessionPreferredIOBufferDuration;
-  final bool? configureAudioSession;
   final bool? supportsDTMF;
   final bool? supportsHolding;
   final bool? supportsGrouping;
   final bool? supportsUngrouping;
+  final bool? includesCallsInRecents;
 
   /// Add file to root project xcode /ios/Runner/Ringtone.caf and Copy Bundle Resources(Build Phases) -> value: "Ringtone.caf"
   final String? ringtonePath;
+  final bool? configureAudioSession;
+  final String? audioSessionMode;
+  final bool? audioSessionActive;
+  final double? audioSessionPreferredSampleRate;
+  final double? audioSessionPreferredIOBufferDuration;
 
   const IOSParams({
     this.iconName,
@@ -32,16 +33,17 @@ class IOSParams {
     this.supportsVideo,
     this.maximumCallGroups,
     this.maximumCallsPerCallGroup,
-    this.audioSessionMode,
-    this.audioSessionActive,
-    this.audioSessionPreferredSampleRate,
-    this.audioSessionPreferredIOBufferDuration,
-    this.configureAudioSession,
     this.supportsDTMF,
     this.supportsHolding,
     this.supportsGrouping,
     this.supportsUngrouping,
+    this.includesCallsInRecents,
     this.ringtonePath,
+    this.configureAudioSession,
+    this.audioSessionMode,
+    this.audioSessionActive,
+    this.audioSessionPreferredSampleRate,
+    this.audioSessionPreferredIOBufferDuration,
   });
 
   factory IOSParams.fromJson(Map<String, dynamic> json) =>

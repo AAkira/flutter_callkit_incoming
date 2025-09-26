@@ -106,8 +106,15 @@ class FlutterCallkitIncoming {
   /// Get active calls.
   /// On iOS: return active calls from Callkit.
   /// On Android: only return last call
-  static Future<dynamic> activeCalls() async {
-    return await _channel.invokeMethod("activeCalls");
+  static Future<List<CallKitParams>> activeCalls() async {
+    final result = await _channel.invokeMethod("activeCalls");
+    if (result is! List) {
+      return [];
+    }
+
+    return result.map((data) {
+      return CallKitParams.fromJson(_convertMap(data) as Map<String, dynamic>);
+    }).toList();
   }
 
   /// Get device push token VoIP.
@@ -155,5 +162,16 @@ class FlutterCallkitIncoming {
       return CallEvent(body, event);
     }
     return null;
+  }
+
+  static dynamic _convertMap(dynamic data) {
+    if (data is Map) {
+      return data
+          .map((key, value) => MapEntry(key.toString(), _convertMap(value)));
+    } else if (data is List) {
+      return data.map((item) => _convertMap(item)).toList();
+    } else {
+      return data;
+    }
   }
 }

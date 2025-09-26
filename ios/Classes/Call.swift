@@ -135,6 +135,7 @@ public class Call: NSObject {
     @objc public var type: Int
     @objc public var normalHandle: Int
     @objc public var duration: Int
+
     @objc public var isAccepted: Bool
     @objc public var extra: NSDictionary
     
@@ -168,13 +169,15 @@ public class Call: NSObject {
         self.uuid = id
         self.nameCaller = nameCaller
         self.appName = "Callkit"
-        self.handle = handle
         self.avatar = ""
+        self.handle = handle
         self.type = type
         self.normalHandle = 0
         self.duration = 30000
         self.isAccepted = false
+
         self.extra = [:]
+
         self.iconName = "CallKitLogo"
         self.handleType = ""
         self.supportsVideo = true
@@ -191,7 +194,7 @@ public class Call: NSObject {
         self.audioSessionActive = true
         self.audioSessionPreferredSampleRate = 44100.0
         self.audioSessionPreferredIOBufferDuration = 0.005
-        
+
         self.isShowMissedCallNotification = true
         self.missedNotificationSubtitle = "Missed Call"
         self.missedNotificationCallbackText = "Call back"
