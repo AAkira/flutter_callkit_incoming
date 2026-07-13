@@ -16,6 +16,7 @@ AndroidParams _$AndroidParamsFromJson(Map json) => $checkedCreate(
           isCustomSmallExNotification:
               $checkedConvert('isCustomSmallExNotification', (v) => v as bool?),
           isShowLogo: $checkedConvert('isShowLogo', (v) => v as bool?),
+          logoUrl: $checkedConvert('logoUrl', (v) => v as String?),
           isShowCallID: $checkedConvert('isShowCallID', (v) => v as bool?),
           ringtonePath: $checkedConvert('ringtonePath', (v) => v as String?),
           backgroundColor:
@@ -31,6 +32,10 @@ AndroidParams _$AndroidParamsFromJson(Map json) => $checkedCreate(
               $checkedConvert('isShowFullLockedScreen', (v) => v as bool?),
           isImportant: $checkedConvert('isImportant', (v) => v as bool?),
           isBot: $checkedConvert('isBot', (v) => v as bool?),
+          isFullScreen: $checkedConvert('isFullScreen', (v) => v as bool?),
+          from: $checkedConvert('from', (v) => v as String?),
+          textAccept: $checkedConvert('textAccept', (v) => v as String?),
+          textDecline: $checkedConvert('textDecline', (v) => v as String?),
         );
         return val;
       },
@@ -41,6 +46,7 @@ Map<String, dynamic> _$AndroidParamsToJson(AndroidParams instance) =>
       'isCustomNotification': instance.isCustomNotification,
       'isCustomSmallExNotification': instance.isCustomSmallExNotification,
       'isShowLogo': instance.isShowLogo,
+      'logoUrl': instance.logoUrl,
       'isShowCallID': instance.isShowCallID,
       'ringtonePath': instance.ringtonePath,
       'backgroundColor': instance.backgroundColor,
@@ -54,4 +60,8 @@ Map<String, dynamic> _$AndroidParamsToJson(AndroidParams instance) =>
       'isShowFullLockedScreen': instance.isShowFullLockedScreen,
       'isImportant': instance.isImportant,
       'isBot': instance.isBot,
+      'isFullScreen': instance.isFullScreen,
+      'from': instance.from,
+      'textAccept': instance.textAccept,
+      'textDecline': instance.textDecline,
     };

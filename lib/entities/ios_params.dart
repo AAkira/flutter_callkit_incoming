@@ -10,38 +10,45 @@ class IOSParams {
 
   /// Type handle call `generic`, `number`, `email`
   final String? handleType;
+
+  /// If normalHandle > 0, handle will not be encrypted
+  final int? normalHandle;
+
   final bool? supportsVideo;
   final int? maximumCallGroups;
   final int? maximumCallsPerCallGroup;
-  final String? audioSessionMode;
-  final bool? audioSessionActive;
-  final double? audioSessionPreferredSampleRate;
-  final double? audioSessionPreferredIOBufferDuration;
-  final bool? configureAudioSession;
   final bool? supportsDTMF;
   final bool? supportsHolding;
   final bool? supportsGrouping;
   final bool? supportsUngrouping;
+  final bool? includesCallsInRecents;
 
   /// Add file to root project xcode /ios/Runner/Ringtone.caf and Copy Bundle Resources(Build Phases) -> value: "Ringtone.caf"
   final String? ringtonePath;
+  final bool? configureAudioSession;
+  final String? audioSessionMode;
+  final bool? audioSessionActive;
+  final double? audioSessionPreferredSampleRate;
+  final double? audioSessionPreferredIOBufferDuration;
 
   const IOSParams({
     this.iconName,
     this.handleType,
+    this.normalHandle,
     this.supportsVideo,
     this.maximumCallGroups,
     this.maximumCallsPerCallGroup,
-    this.audioSessionMode,
-    this.audioSessionActive,
-    this.audioSessionPreferredSampleRate,
-    this.audioSessionPreferredIOBufferDuration,
-    this.configureAudioSession,
     this.supportsDTMF,
     this.supportsHolding,
     this.supportsGrouping,
     this.supportsUngrouping,
+    this.includesCallsInRecents,
     this.ringtonePath,
+    this.configureAudioSession,
+    this.audioSessionMode,
+    this.audioSessionActive,
+    this.audioSessionPreferredSampleRate,
+    this.audioSessionPreferredIOBufferDuration,
   });
 
   factory IOSParams.fromJson(Map<String, dynamic> json) =>
@@ -50,21 +57,25 @@ class IOSParams {
   Map<String, dynamic> toJson() => _$IOSParamsToJson(this);
 
   @override
-  String toString() =>
-      'IOSParams(' +
-      'iconName: $iconName, ' +
-      'handleType: $handleType, ' +
-      'supportsVideo: $supportsVideo, ' +
-      'maximumCallGroups: $maximumCallGroups, ' +
-      'maximumCallsPerCallGroup: $maximumCallsPerCallGroup, ' +
-      'audioSessionMode: $audioSessionMode, ' +
-      'audioSessionActive: $audioSessionActive, ' +
-      'audioSessionPreferredSampleRate: $audioSessionPreferredSampleRate, ' +
-      'audioSessionPreferredIOBufferDuration: $audioSessionPreferredIOBufferDuration, ' +
-      'supportsDTMF: $supportsDTMF, ' +
-      'supportsHolding: $supportsHolding, ' +
-      'supportsGrouping: $supportsGrouping, ' +
-      'supportsUngrouping: $supportsUngrouping, ' +
-      'ringtonePath: $ringtonePath' +
-      ')';
+  String toString() {
+    return 'IOSParams{'
+        'iconName: $iconName, '
+        'handleType: $handleType, '
+        'normalHandle: $normalHandle, '
+        'supportsVideo: $supportsVideo, '
+        'maximumCallGroups: $maximumCallGroups, '
+        'maximumCallsPerCallGroup: $maximumCallsPerCallGroup, '
+        'supportsDTMF: $supportsDTMF, '
+        'supportsHolding: $supportsHolding, '
+        'supportsGrouping: $supportsGrouping, '
+        'supportsUngrouping: $supportsUngrouping, '
+        'includesCallsInRecents: $includesCallsInRecents, '
+        'ringtonePath: $ringtonePath, '
+        'configureAudioSession: $configureAudioSession, '
+        'audioSessionMode: $audioSessionMode, '
+        'audioSessionActive: $audioSessionActive, '
+        'audioSessionPreferredSampleRate: $audioSessionPreferredSampleRate, '
+        'audioSessionPreferredIOBufferDuration: $audioSessionPreferredIOBufferDuration'
+        '}';
+  }
 }

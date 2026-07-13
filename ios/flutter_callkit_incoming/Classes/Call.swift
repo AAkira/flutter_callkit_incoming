@@ -135,8 +135,11 @@ public class Call: NSObject {
     @objc public var type: Int
     @objc public var normalHandle: Int
     @objc public var duration: Int
+
+    @objc public var isAccepted: Bool
     @objc public var extra: NSDictionary
-    
+    @objc public var headers: NSDictionary
+
     //iOS
     @objc public var iconName: String
     @objc public var handleType: String
@@ -155,16 +158,33 @@ public class Call: NSObject {
     @objc public var audioSessionPreferredSampleRate: Double
     @objc public var audioSessionPreferredIOBufferDuration: Double
     
+    //missedCallNotification
+    @objc public var isShowMissedCallNotification: Bool = true
+    @objc public var missedNotificationSubtitle: String
+    @objc public var missedNotificationCallbackText: String
+    @objc public var isShowCallback: Bool = true
+
+    //callingNotification
+    @objc public var isShowCallingNotification: Bool = true
+    @objc public var callingNotificationSubtitle: String
+    @objc public var callingNotificationHangupText: String
+    @objc public var isShowHangup: Bool = true
+    
+    
     @objc public init(id: String, nameCaller: String, handle: String, type: Int) {
         self.uuid = id
         self.nameCaller = nameCaller
         self.appName = "Callkit"
-        self.handle = handle
         self.avatar = ""
+        self.handle = handle
         self.type = type
         self.normalHandle = 0
         self.duration = 30000
+        self.isAccepted = false
+
         self.extra = [:]
+        self.headers = [:]
+
         self.iconName = "CallKitLogo"
         self.handleType = ""
         self.supportsVideo = true
@@ -181,6 +201,16 @@ public class Call: NSObject {
         self.audioSessionActive = true
         self.audioSessionPreferredSampleRate = 44100.0
         self.audioSessionPreferredIOBufferDuration = 0.005
+
+        self.isShowMissedCallNotification = true
+        self.missedNotificationSubtitle = "Missed Call"
+        self.missedNotificationCallbackText = "Call back"
+        self.isShowCallback = true
+
+        self.isShowCallingNotification = true
+        self.callingNotificationSubtitle = "Calling"
+        self.callingNotificationHangupText = "Hang up"
+        self.isShowHangup = true
     }
     
     @objc public convenience init(args: NSDictionary) {
@@ -198,14 +228,16 @@ public class Call: NSObject {
         self.handle = args["handle"] as? String ?? ""
         self.avatar = args["avatar"] as? String ?? ""
         self.type = args["type"] as? Int ?? 0
-        self.normalHandle = args["normalHandle"] as? Int ?? 0
         self.duration = args["duration"] as? Int ?? 30000
+        self.isAccepted = args["isAccepted"] as? Bool ?? false
         self.extra = args["extra"] as? NSDictionary ?? [:]
-        
-        
+        self.headers = args["headers"] as? NSDictionary ?? [:]
+
+
         if let ios = args["ios"] as? [String: Any] {
             self.iconName = ios["iconName"] as? String ?? "CallKitLogo"
             self.handleType = ios["handleType"] as? String ?? ""
+            self.normalHandle = ios["normalHandle"] as? Int ?? 0
             self.supportsVideo = ios["supportsVideo"] as? Bool ?? true
             self.maximumCallGroups = ios["maximumCallGroups"] as? Int ?? 2
             self.maximumCallsPerCallGroup = ios["maximumCallsPerCallGroup"] as? Int ?? 1
@@ -223,6 +255,7 @@ public class Call: NSObject {
         }else {
             self.iconName = args["iconName"] as? String ?? "CallKitLogo"
             self.handleType = args["handleType"] as? String ?? ""
+            self.normalHandle = args["normalHandle"] as? Int ?? 0
             self.supportsVideo = args["supportsVideo"] as? Bool ?? true
             self.maximumCallGroups = args["maximumCallGroups"] as? Int ?? 2
             self.maximumCallsPerCallGroup =  args["maximumCallsPerCallGroup"] as? Int ?? 1
@@ -238,12 +271,48 @@ public class Call: NSObject {
             self.audioSessionPreferredSampleRate = args["audioSessionPreferredSampleRate"] as? Double ?? 44100.0
             self.audioSessionPreferredIOBufferDuration = args["audioSessionPreferredIOBufferDuration"] as? Double ?? 0.005
         }
+        if let missedCallNotification = args["missedCallNotification"] as? [String: Any] {
+            self.isShowMissedCallNotification = missedCallNotification["showNotification"] as? Bool ?? true
+            self.missedNotificationSubtitle = missedCallNotification["subtitle"] as? String ?? "Missed Call"
+            self.missedNotificationCallbackText = missedCallNotification["callbackText"] as? String ?? "Call back"
+            self.isShowCallback = missedCallNotification["isShowCallback"] as? Bool ?? true
+        }else {
+            self.isShowMissedCallNotification = true
+            self.missedNotificationSubtitle = "Missed Call"
+            self.missedNotificationCallbackText = "Call back"
+            self.isShowCallback = true
+        }
+
+        if let callingNotification = args["callingNotification"] as? [String: Any] {
+            self.isShowCallingNotification = callingNotification["showNotification"] as? Bool ?? true
+            self.callingNotificationSubtitle = callingNotification["subtitle"] as? String ?? "Calling"
+            self.callingNotificationHangupText = callingNotification["callbackText"] as? String ?? "Hang up"
+            self.isShowHangup = callingNotification["isShowCallback"] as? Bool ?? true
+        }else {
+            self.isShowCallingNotification = true
+            self.callingNotificationSubtitle = "Calling"
+            self.callingNotificationHangupText = "Hang up"
+            self.isShowHangup = true
+        }
     }
     
     open func toJSON() -> [String: Any] {
+        let missedCallNotification: [String : Any] = [
+            "showNotification": isShowMissedCallNotification,
+            "subtitle": missedNotificationSubtitle,
+            "callbackText": missedNotificationCallbackText,
+            "isShowCallback": isShowCallback
+        ]
+        let callingNotification: [String : Any] = [
+            "showNotification": isShowCallingNotification,
+            "subtitle": callingNotificationSubtitle,
+            "callbackText": callingNotificationHangupText,
+            "isShowCallback": isShowHangup
+        ]
         let ios: [String : Any] = [
             "iconName": iconName,
             "handleType": handleType,
+            "normalHandle": normalHandle,
             "supportsVideo": supportsVideo,
             "maximumCallGroups": maximumCallGroups,
             "maximumCallsPerCallGroup": maximumCallsPerCallGroup,
@@ -267,10 +336,13 @@ public class Call: NSObject {
             "handle": handle,
             "avatar": avatar,
             "type": type,
-            "normalHandle": normalHandle,
             "duration": duration,
+            "isAccepted": isAccepted,
             "extra": extra,
-            "ios": ios
+            "headers": headers,
+            "ios": ios,
+            "missedCallNotification": missedCallNotification,
+            "callingNotification": callingNotification
         ]
         return map
     }

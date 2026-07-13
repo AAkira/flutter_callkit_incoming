@@ -7,6 +7,7 @@ import 'package:flutter_callkit_incoming/entities/entities.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_callkit_incoming_example/app_router.dart';
 import 'package:flutter_callkit_incoming_example/navigation_service.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -24,8 +25,7 @@ Future<void> showCallkitIncoming(String uuid) async {
     handle: '0123456789',
     type: 0,
     duration: 30000,
-    textAccept: 'Accept',
-    textDecline: 'Decline',
+    isAccepted: false,
     missedCallNotification: const NotificationParams(
       showNotification: true,
       isShowCallback: true,
@@ -36,16 +36,19 @@ Future<void> showCallkitIncoming(String uuid) async {
     headers: <String, dynamic>{'apiKey': 'Abc@123!', 'platform': 'flutter'},
     android: const AndroidParams(
       isCustomNotification: true,
-      isShowLogo: false,
+      isShowLogo: true,
+      logoUrl: 'assets/test.png',
       ringtonePath: 'system_ringtone_default',
       backgroundColor: '#0955fa',
       backgroundUrl: 'assets/test.png',
       actionColor: '#4CAF50',
       textColor: '#ffffff',
+      textAccept: 'Accept',
+      textDecline: 'Decline',
     ),
     ios: const IOSParams(
       iconName: 'CallKitLogo',
-      handleType: '',
+      handleType: 'generic',
       supportsVideo: true,
       maximumCallGroups: 2,
       maximumCallsPerCallGroup: 1,
@@ -60,7 +63,7 @@ Future<void> showCallkitIncoming(String uuid) async {
       ringtonePath: 'system_ringtone_default',
     ),
   );
-  await FlutterCallkitIncoming.instance.showCallkitIncoming(params);
+  await FlutterCallkitIncoming.showCallkitIncoming(params);
 }
 
 void main() {
@@ -87,27 +90,41 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
     _uuid = const Uuid();
     initFirebase();
     WidgetsBinding.instance.addObserver(this);
+    FlutterCallkitIncoming.requestFullIntentPermission();
+    setupPermissions();
+
     //Check call when open app from terminated
     checkAndNavigationCallingPage();
   }
 
+  Future<void> setupPermissions() async {
+    await Permission.camera.status;
+    await Permission.microphone.status;
+    await Permission.notification.status;
+  }
+
   Future<CallKitParams?> getCurrentCall() async {
-    //check current call from pushkit if possible
-    final calls = await FlutterCallkitIncoming.instance.activeCalls();
-    if (calls != null && calls.isNotEmpty) {
+    final calls = await FlutterCallkitIncoming.activeCalls();
+    if (calls.isNotEmpty) {
       print('DATA: $calls');
-      _currentUuid = calls.first.id;
-      return calls.first;
-    } else {
+      if (calls[0].isAccepted) {
+        _currentUuid = calls[0].id;
+        return calls[0];
+      }
       _currentUuid = "";
       return null;
     }
+    _currentUuid = "";
+    return null;
   }
 
   Future<void> checkAndNavigationCallingPage() async {
-    var currentCall = await getCurrentCall();
+    final currentCall = await getCurrentCall();
     if (currentCall != null) {
-      NavigationService.instance.pushNamedIfNotCurrent(AppRoute.callingPage, args: currentCall);
+      NavigationService.instance.pushNamedIfNotCurrent(
+        AppRoute.callingPage,
+        args: currentCall.id,
+      );
     }
   }
 
@@ -152,8 +169,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   Future<void> getDevicePushTokenVoIP() async {
-    final devicePushTokenVoIP =
-        await FlutterCallkitIncoming.instance.getDevicePushTokenVoIP();
+    var devicePushTokenVoIP = await FlutterCallkitIncoming.getDevicePushTokenVoIP();
     print(devicePushTokenVoIP);
   }
 }
