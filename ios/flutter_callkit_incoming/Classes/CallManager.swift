@@ -22,8 +22,17 @@ class CallManager: NSObject {
     
     func startCall(_ data: Data) {
         let handle = CXHandle(type: self.getHandleType(data.handleType), value: data.getEncryptHandle())
-        let uuid = UUID(uuidString: data.uuid)
-        let startCallAction = CXStartCallAction(call: uuid!, handle: handle)
+        // Guard against malformed UUID strings — caller layers (Dart, native) sometimes pass
+        // app-internal call identifiers that aren't UUID(8-4-4-4-12) shaped. Force-unwrapping
+        // here would crash the host process (was the chronic SnowChat "iPhone caller endCall →
+        // process dies" symptom before the Dart-side guard was added). Returning silently is
+        // safe: no CallKit call gets registered, and the caller can detect the no-op via
+        // its own state machine.
+        guard let uuid = UUID(uuidString: data.uuid) else {
+            NSLog("[CallkitIncoming] startCall: invalid UUID '\(data.uuid)' — ignored")
+            return
+        }
+        let startCallAction = CXStartCallAction(call: uuid, handle: handle)
         startCallAction.isVideo = data.type > 0
         let callTransaction = CXTransaction()
         callTransaction.addAction(startCallAction)
@@ -37,7 +46,7 @@ class CallManager: NSObject {
             callUpdate.supportsUngrouping = data.supportsUngrouping
             callUpdate.hasVideo = data.type > 0 ? true : false
             callUpdate.localizedCallerName = data.nameCaller
-            self.sharedProvider?.reportCall(with: uuid!, updated: callUpdate)
+            self.sharedProvider?.reportCall(with: uuid, updated: callUpdate)
         })
     }
     
@@ -66,6 +75,17 @@ class CallManager: NSObject {
     func connectedCall(call: Call) {
         let callItem = self.callWithUUID(uuid: call.uuid)
         callItem?.connectedCall(completion: nil)
+        
+        let answerAction = CXAnswerCallAction(call: call.uuid)        
+        let transaction = CXTransaction(action: answerAction)
+
+        callController.request(transaction) { error in
+            if let error = error {
+                print("Error answering call: \(error.localizedDescription)")
+            } else {
+                // Call successfully answered
+            }
+        }
     }
     
     func endCallAlls() {
@@ -84,7 +104,8 @@ class CallManager: NSObject {
         for call in calls {
             let callItem = self.callWithUUID(uuid: call.uuid)
             if(callItem != nil){
-                let item: [String: Any] = callItem!.data.toJSON()
+                var item: [String: Any] = callItem!.data.toJSON()
+                item["accepted"] = callItem?.hasConnected
                 json.append(item)
             }else {
                 let item: [String: String] = ["id": call.uuid.uuidString]

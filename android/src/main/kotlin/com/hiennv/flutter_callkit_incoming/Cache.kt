@@ -4,7 +4,7 @@ object Cache {
     var latestEvent: Map<String, Any>? = null
         private set
 
-    fun updateLatestEvent(action: String, data: Map<String, Any>) {
+    fun updateLatestEvent(action: String, data: Map<String, Any?>) {
         latestEvent = mapOf(
             "event" to action,
             "body" to data,

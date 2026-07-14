@@ -27,13 +27,14 @@ class NotificationParams {
   Map<String, dynamic> toJson() => _$NotificationParamsToJson(this);
 
   @override
-  String toString() =>
-      'NotificationParams(' +
-      'id: $id, ' +
-      'showNotification: $showNotification, ' +
-      'subtitle: $subtitle, ' +
-      'callbackText: $callbackText, ' +
-      'isShowCallback: $isShowCallback, ' +
-      'count: $count, ' +
-      ')';
+  String toString() {
+    return 'NotificationParams{'
+        'id: $id, '
+        'showNotification: $showNotification, '
+        'subtitle: $subtitle, '
+        'callbackText: $callbackText, '
+        'isShowCallback: $isShowCallback, '
+        'count: $count'
+        '}';
+  }
 }

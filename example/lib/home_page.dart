@@ -105,6 +105,7 @@ class HomePageState extends State<HomePage> {
 
   Future<void> requestNotificationPermission() async {
     await FlutterCallkitIncoming.requestNotificationPermission({
+      "title": "Notification Permission",
       "rationaleMessagePermission":
           "Notification permission is required, to show notification.",
       "postNotificationMessageRequired":
@@ -114,17 +115,14 @@ class HomePageState extends State<HomePage> {
 
   Future<CallKitParams?> initCurrentCall() async {
     await requestNotificationPermission();
-
-    //check current call from pushkit if possible
-    final calls = await FlutterCallkitIncoming.instance.activeCalls();
-    if (calls != null && calls.isNotEmpty) {
+    final calls = await FlutterCallkitIncoming.activeCalls();
+    if (calls.isNotEmpty) {
       print('DATA: $calls');
-      _currentUuid = calls.first.id;
-      return calls.first;
-    } else {
-      _currentUuid = "";
-      return null;
+      _currentUuid = calls[0].id;
+      return calls[0];
     }
+    _currentUuid = "";
+    return null;
   }
 
   Future<void> makeFakeCallInComing() async {
@@ -132,39 +130,48 @@ class HomePageState extends State<HomePage> {
       _currentUuid = _uuid.v4();
 
       final params = CallKitParams(
-        id: _currentUuid,
+        id: _currentUuid!,
         nameCaller: 'Hien Nguyen',
         appName: 'Callkit',
-        avatar: 'https://i.pravatar.cc/100',
+        avatar: 'https://fastly.picsum.photos/id/773/200/300.jpg?hmac=nhH4e4UtqcS6I0hy7eCr9waIFzMYNaMkzety6PQnOHM',
         handle: '0123456789',
         type: 0,
         duration: 30000,
-        textAccept: 'Accept',
-        textDecline: 'Decline',
+        isAccepted: false,
         missedCallNotification: const NotificationParams(
           showNotification: true,
           isShowCallback: true,
           subtitle: 'Missed call',
           callbackText: 'Call back',
         ),
+        callingNotification: const NotificationParams(
+          showNotification: true,
+          isShowCallback: true,
+          subtitle: 'Calling...',
+          callbackText: 'Hang Up',
+        ),
         extra: <String, dynamic>{'userId': '1a2b3c4d'},
         headers: <String, dynamic>{'apiKey': 'Abc@123!', 'platform': 'flutter'},
         android: const AndroidParams(
           isCustomNotification: true,
-          isShowLogo: false,
+          isShowLogo: true,
+          isShowCallID: true,
+          logoUrl: 'assets/test.png',
           ringtonePath: 'system_ringtone_default',
           backgroundColor: '#0955fa',
-          backgroundUrl: 'assets/test.png',
+          backgroundUrl: 'https://fastly.picsum.photos/id/773/200/300.jpg?hmac=nhH4e4UtqcS6I0hy7eCr9waIFzMYNaMkzety6PQnOHM',
           actionColor: '#4CAF50',
           textColor: '#ffffff',
           incomingCallNotificationChannelName: 'Incoming Call',
           missedCallNotificationChannelName: 'Missed Call',
           isImportant: true,
           isBot: false,
+          textAccept: 'Accept',
+          textDecline: 'Decline',
         ),
         ios: const IOSParams(
           iconName: 'CallKitLogo',
-          handleType: '',
+          handleType: 'generic',
           supportsVideo: true,
           maximumCallGroups: 2,
           maximumCallsPerCallGroup: 1,
@@ -179,88 +186,116 @@ class HomePageState extends State<HomePage> {
           ringtonePath: 'system_ringtone_default',
         ),
       );
-      await FlutterCallkitIncoming.instance.showCallkitIncoming(params);
+      await FlutterCallkitIncoming.showCallkitIncoming(params);
     });
   }
 
   Future<void> endCurrentCall() async {
     initCurrentCall();
-    await FlutterCallkitIncoming.instance.endCall(_currentUuid!);
+    await FlutterCallkitIncoming.endCall(_currentUuid!);
   }
 
   Future<void> startOutGoingCall() async {
     _currentUuid = _uuid.v4();
     final params = CallKitParams(
-      id: _currentUuid,
-      nameCaller: 'Hien Nguyen',
-      handle: '0123456789',
-      type: 1,
-      extra: <String, dynamic>{'userId': '1a2b3c4d'},
-      ios: const IOSParams(handleType: 'number'),
-    );
-    await FlutterCallkitIncoming.instance.startCall(params);
+        id: _currentUuid!,
+        nameCaller: 'Hien Nguyen',
+        handle: '0123456789',
+        type: 1,
+        extra: <String, dynamic>{'userId': '1a2b3c4d'},
+        ios: const IOSParams(handleType: 'generic'),
+        callingNotification: const NotificationParams(
+          showNotification: true,
+          isShowCallback: true,
+          subtitle: 'Calling...',
+          callbackText: 'Hang Up',
+        ),
+        android: const AndroidParams(
+          isCustomNotification: true,
+          isShowCallID: true,
+        ));
+    await FlutterCallkitIncoming.startCall(params);
   }
 
   Future<void> activeCalls() async {
-    var calls = await FlutterCallkitIncoming.instance.activeCalls();
+    var calls = await FlutterCallkitIncoming.activeCalls();
     print(calls);
   }
 
   Future<void> endAllCalls() async {
-    await FlutterCallkitIncoming.instance.endAllCalls();
+    await FlutterCallkitIncoming.endAllCalls();
   }
 
   Future<void> getDevicePushTokenVoIP() async {
     var devicePushTokenVoIP =
-        await FlutterCallkitIncoming.instance.getDevicePushTokenVoIP();
+        await FlutterCallkitIncoming.getDevicePushTokenVoIP();
     print(devicePushTokenVoIP);
   }
 
-  Future<void> listenerEvent(void Function(CallEvent) callback) async {
+  Future<void> listenerEvent(void Function(CallEvent?) callback) async {
     try {
-      FlutterCallkitIncoming.instance.onEvent.listen((event) async {
+      FlutterCallkitIncoming.onEvent.listen((event) async {
         print('HOME: $event');
-
-        if (event is CallActionIncoming) {
-          // TODO: received an incoming call
-        } else if (event is CallActionStart) {
-          // TODO: started an outgoing call
-          // TODO: show screen calling in Flutter
-        } else if (event is CallActionAccept) {
-          // TODO: accepted an incoming call
-          // TODO: show screen calling in Flutter
-          NavigationService.instance.pushNamedIfNotCurrent(
-            AppRoute.callingPage,
-            args: event.callKitParams,
-          );
-        } else if (event is CallActionDecline) {
-          // TODO: declined an incoming call
-          await requestHttp("ACTION_CALL_DECLINE_FROM_DART");
-        } else if (event is CallActionEnded) {
-          // TODO: ended an incoming/outgoing call
-        } else if (event is CallActionTimeout) {
-          // TODO: missed an incoming call
-        } else if (event is CallActionCallback) {
-          // TODO: only Android - click action `Call back` from missed call notification
-        } else if (event is CallActionCustom) {}
-
-        if (event != null) {
-          callback(event);
+        switch (event) {
+          case CallEventActionCallIncoming():
+            break;
+          case CallEventActionCallStart():
+            NavigationService.instance.pushNamedIfNotCurrent(
+              AppRoute.callingPage,
+              args: event.callKitParams.id,
+            );
+            break;
+          case CallEventActionCallAccept():
+            NavigationService.instance.pushNamedIfNotCurrent(
+              AppRoute.callingPage,
+              args: event.callKitParams.id,
+            );
+            break;
+          case CallEventActionCallDecline():
+            await requestHttp("ACTION_CALL_DECLINE_FROM_DART");
+            break;
+          case CallEventActionCallEnded():
+            NavigationService.instance.popUntil(AppRoute.homePage);
+            break;
+          case CallEventActionCallConnected():
+            break;
+          case CallEventActionCallTimeout():
+            break;
+          case CallEventActionCallCallback():
+            break;
+          case CallEventActionCallToggleHold():
+            break;
+          case CallEventActionCallToggleMute():
+            break;
+          case CallEventActionCallToggleDmtf():
+            break;
+          case CallEventActionCallToggleGroup():
+            break;
+          case CallEventActionCallToggleAudioSession():
+            break;
+          case CallEventActionDidUpdateDevicePushTokenVoip():
+            break;
+          case CallEventActionCallCustom():
+            break;
+          case null:
+            break;
         }
+        callback(event);
       });
-    } on Exception {}
+    } on Exception catch (e) {
+      print(e);
+    }
   }
 
-  //check with https://webhook.site/#!/2748bc41-8599-4093-b8ad-93fd328f1cd2
-  Future<void> requestHttp(content) async {
-    get(Uri.parse(
-        'https://webhook.site/2748bc41-8599-4093-b8ad-93fd328f1cd2?data=$content'));
+  //check with https://events.hiennv.com
+  Future<void> requestHttp(String content) async {
+    get(Uri.parse('https://events.hiennv.com/api/logs?data=$content'));
   }
 
-  void onEvent(CallEvent event) {
+  void onEvent(CallEvent? event) {
     if (!mounted) return;
     setState(() {
-      textEvents += '---\n${event.toString()}\n';
+      textEvents += '-----------------------\n${event.toString()}\n';
     });
   }
 }
