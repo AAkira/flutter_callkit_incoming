@@ -1018,6 +1018,20 @@ class CallkitNotificationManager(
     inner class VolumeKeyBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == "android.media.VOLUME_CHANGED_ACTION") {
+                // A self-managed Telecom connection makes the system emit
+                // VOLUME_CHANGED_ACTION for non-RING streams while it sets up the
+                // call audio route. Only treat an actual RING-stream volume change
+                // as a user press, otherwise the ringtone is silenced ~1s in with
+                // no user interaction.
+                val streamType =
+                    intent.getIntExtra("android.media.EXTRA_VOLUME_STREAM_TYPE", -1)
+                val newVolume =
+                    intent.getIntExtra("android.media.EXTRA_VOLUME_STREAM_VALUE", -1)
+                val prevVolume =
+                    intent.getIntExtra("android.media.EXTRA_PREV_VOLUME_STREAM_VALUE", -1)
+                if (streamType != AudioManager.STREAM_RING || newVolume == prevVolume) {
+                    return
+                }
                 if (callkitSoundPlayerManager?.isPlaying == true) {
                     callkitSoundPlayerManager.stop()
                 }
