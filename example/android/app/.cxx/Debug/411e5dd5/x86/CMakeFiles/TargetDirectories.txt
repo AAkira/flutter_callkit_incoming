@@ -1,2 +1,0 @@
-/Users/akira.aratani/src/github.com/AAkira/flutter_callkit_incoming/example/android/app/.cxx/Debug/411e5dd5/x86/CMakeFiles/edit_cache.dir
-/Users/akira.aratani/src/github.com/AAkira/flutter_callkit_incoming/example/android/app/.cxx/Debug/411e5dd5/x86/CMakeFiles/rebuild_cache.dir
