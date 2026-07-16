@@ -10,6 +10,7 @@ package com.hiennv.flutter_callkit_incoming
 import android.app.Activity
 import android.app.KeyguardManager
 import android.app.NotificationManager
+import android.content.ActivityNotFoundException
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -19,6 +20,7 @@ import android.content.pm.ActivityInfo
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import androidx.core.graphics.drawable.DrawableCompat
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -105,10 +107,16 @@ class CallkitIncomingActivity : Activity() {
             val notificationManager =
                 getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             if (!notificationManager.canUseFullScreenIntent()) {
-                startActivity(Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT).apply {
-                    flags = FLAG_ACTIVITY_NEW_TASK
-                    putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
-                })
+                try {
+                    startActivity(
+                        Intent(
+                            Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT,
+                            Uri.parse("package:${packageName}"),
+                        ).addFlags(FLAG_ACTIVITY_NEW_TASK)
+                    )
+                } catch (e: ActivityNotFoundException) {
+                    Log.w("CallkitIncomingActivity", "No activity found to manage full screen intent permission", e)
+                }
             }
         }
         requestedOrientation = if (!Utils.isTablet(this@CallkitIncomingActivity)) {
