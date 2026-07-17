@@ -54,6 +54,10 @@ class CallkitNotificationManager(
         const val NOTIFICATION_CHANNEL_ID_ONGOING = "callkit_ongoing_channel_id"
         const val NOTIFICATION_CHANNEL_ID_MISSED = "callkit_missed_channel_id"
 
+        private const val ACTION_VOLUME_CHANGED = "android.media.VOLUME_CHANGED_ACTION"
+        private const val EXTRA_VOLUME_STREAM_TYPE = "android.media.EXTRA_VOLUME_STREAM_TYPE"
+        private const val EXTRA_VOLUME_STREAM_VALUE = "android.media.EXTRA_VOLUME_STREAM_VALUE"
+        private const val EXTRA_PREV_VOLUME_STREAM_VALUE = "android.media.EXTRA_PREV_VOLUME_STREAM_VALUE"
     }
 
     private var dataNotificationPermission: Map<String, Any> = HashMap()
@@ -1017,7 +1021,16 @@ class CallkitNotificationManager(
     // Start Signify modification
     inner class VolumeKeyBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == "android.media.VOLUME_CHANGED_ACTION") {
+            if (intent?.action == ACTION_VOLUME_CHANGED) {
+                val streamType =
+                    intent.getIntExtra(EXTRA_VOLUME_STREAM_TYPE, -1)
+                val newVolume =
+                    intent.getIntExtra(EXTRA_VOLUME_STREAM_VALUE, -1)
+                val prevVolume =
+                    intent.getIntExtra(EXTRA_PREV_VOLUME_STREAM_VALUE, -1)
+                if (streamType != AudioManager.STREAM_RING || newVolume == prevVolume) {
+                    return
+                }
                 if (callkitSoundPlayerManager?.isPlaying == true) {
                     callkitSoundPlayerManager.stop()
                 }
@@ -1035,7 +1048,7 @@ class CallkitNotificationManager(
             volumeKeyReceiver = VolumeKeyBroadcastReceiver()
             context.registerReceiver(
                 volumeKeyReceiver,
-                IntentFilter("android.media.VOLUME_CHANGED_ACTION")
+                IntentFilter(ACTION_VOLUME_CHANGED)
             )
             // End Signify modification
         }
