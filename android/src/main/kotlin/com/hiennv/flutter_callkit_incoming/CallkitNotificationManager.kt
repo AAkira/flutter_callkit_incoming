@@ -54,6 +54,10 @@ class CallkitNotificationManager(
         const val NOTIFICATION_CHANNEL_ID_ONGOING = "callkit_ongoing_channel_id"
         const val NOTIFICATION_CHANNEL_ID_MISSED = "callkit_missed_channel_id"
 
+        private const val ACTION_VOLUME_CHANGED = "android.media.VOLUME_CHANGED_ACTION"
+        private const val EXTRA_VOLUME_STREAM_TYPE = "android.media.EXTRA_VOLUME_STREAM_TYPE"
+        private const val EXTRA_VOLUME_STREAM_VALUE = "android.media.EXTRA_VOLUME_STREAM_VALUE"
+        private const val EXTRA_PREV_VOLUME_STREAM_VALUE = "android.media.EXTRA_PREV_VOLUME_STREAM_VALUE"
     }
 
     private var dataNotificationPermission: Map<String, Any> = HashMap()
@@ -1017,18 +1021,13 @@ class CallkitNotificationManager(
     // Start Signify modification
     inner class VolumeKeyBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == "android.media.VOLUME_CHANGED_ACTION") {
-                // A self-managed Telecom connection makes the system emit
-                // VOLUME_CHANGED_ACTION for non-RING streams while it sets up the
-                // call audio route. Only treat an actual RING-stream volume change
-                // as a user press, otherwise the ringtone is silenced ~1s in with
-                // no user interaction.
+            if (intent?.action == ACTION_VOLUME_CHANGED) {
                 val streamType =
-                    intent.getIntExtra("android.media.EXTRA_VOLUME_STREAM_TYPE", -1)
+                    intent.getIntExtra(EXTRA_VOLUME_STREAM_TYPE, -1)
                 val newVolume =
-                    intent.getIntExtra("android.media.EXTRA_VOLUME_STREAM_VALUE", -1)
+                    intent.getIntExtra(EXTRA_VOLUME_STREAM_VALUE, -1)
                 val prevVolume =
-                    intent.getIntExtra("android.media.EXTRA_PREV_VOLUME_STREAM_VALUE", -1)
+                    intent.getIntExtra(EXTRA_PREV_VOLUME_STREAM_VALUE, -1)
                 if (streamType != AudioManager.STREAM_RING || newVolume == prevVolume) {
                     return
                 }
@@ -1049,7 +1048,7 @@ class CallkitNotificationManager(
             volumeKeyReceiver = VolumeKeyBroadcastReceiver()
             context.registerReceiver(
                 volumeKeyReceiver,
-                IntentFilter("android.media.VOLUME_CHANGED_ACTION")
+                IntentFilter(ACTION_VOLUME_CHANGED)
             )
             // End Signify modification
         }
